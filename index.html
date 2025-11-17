@@ -33,6 +33,11 @@
   }
 }
 </script>
+<script>
+  // Polyfill for process.env to work in a browser environment without a build step.
+  // This prevents a ReferenceError that stops the entire app from loading.
+  window.process = { env: {} };
+</script>
 </head>
   <body class="bg-gray-900">
     <div id="root"></div>
