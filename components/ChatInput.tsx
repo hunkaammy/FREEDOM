@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { SendIcon, MicIcon } from './icons';
-import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+import { SendIcon, MicIcon } from './icons.tsx';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition.ts';
 
 
 interface ChatInputProps {

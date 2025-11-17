@@ -1,7 +1,7 @@
 import React from 'react';
-import { TrashIcon, EditIcon } from './icons';
-import { Persona } from '../types';
-import Avatar from './Avatar';
+import { TrashIcon, EditIcon } from './icons.tsx';
+import { Persona } from '../types.ts';
+import Avatar from './Avatar.tsx';
 
 interface HeaderProps {
   persona: Persona;

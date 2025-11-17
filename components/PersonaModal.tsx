@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Persona } from '../types';
-import { CloseIcon, UserIcon } from './icons';
-import { fileToBase64 } from '../utils/imageUtils';
-import Avatar from './Avatar';
+import { Persona } from '../types.ts';
+import { CloseIcon, UserIcon } from './icons.tsx';
+import { fileToBase64 } from '../utils/imageUtils.ts';
+import Avatar from './Avatar.tsx';
 
 interface PersonaModalProps {
   isOpen: boolean;

@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Message as MessageType } from '../types';
-import { UserIcon, ModelIcon } from './icons';
+import { Message as MessageType } from '../types.ts';
+import { UserIcon, ModelIcon } from './icons.tsx';
 
 interface MessageProps {
   message: MessageType;

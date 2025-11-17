@@ -1,5 +1,5 @@
 import React from 'react';
-import { ModelIcon } from './icons';
+import { ModelIcon } from './icons.tsx';
 
 interface AvatarProps {
   avatar?: string;

@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Chat } from '@google/genai';
-import { Message, Persona } from './types';
-import { initializeChat, sendMessage } from './services/geminiService';
-import { personas as defaultPersonas } from './personas';
+import { Message, Persona } from './types.ts';
+import { initializeChat, sendMessage } from './services/geminiService.ts';
+import { personas as defaultPersonas } from './personas.ts';
 
-import Header from './components/Header';
-import ChatWindow from './components/ChatWindow';
-import ChatInput from './components/ChatInput';
-import ChatList from './components/ChatList';
-import PersonaModal from './components/PersonaModal';
+import Header from './components/Header.tsx';
+import ChatWindow from './components/ChatWindow.tsx';
+import ChatInput from './components/ChatInput.tsx';
+import ChatList from './components/ChatList.tsx';
+import PersonaModal from './components/PersonaModal.tsx';
 
 const App: React.FC = () => {
   const [personas, setPersonas] = useState<Persona[]>(() => {

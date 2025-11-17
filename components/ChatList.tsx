@@ -1,7 +1,7 @@
 import React from 'react';
-import { Persona } from '../types';
-import { PlusIcon } from './icons';
-import Avatar from './Avatar';
+import { Persona } from '../types.ts';
+import { PlusIcon } from './icons.tsx';
+import Avatar from './Avatar.tsx';
 
 interface ChatListProps {
   personas: Persona[];
