@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 // IMPORTANT: Replace "YOUR_API_KEY_HERE" with your actual Google AI Studio API key.
-const API_KEY = "YOUR_API_KEY_HERE";
+const API_KEY = "AIzaSyDfWaNBq0S_A1iDyx4A71XGvpK4WCofCmU";
 
 export const initializeChat = (systemInstruction) => {
   if (API_KEY === "YOUR_API_KEY_HERE" || !API_KEY) {
