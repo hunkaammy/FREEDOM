@@ -1,42 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <base href="/FREEDOM/" />
-    <link rel="icon" type="image/svg+xml" href="vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hinglish Roleplay Chat</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Femdom Hinglish Roleplay Chat</title>
     <style>
-      /* Custom scrollbar for webkit browsers */
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: #1e1b2e; 
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #4a4a68;
-        border-radius: 3px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #6a6a8b;
-      }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 30%; min-width: 300px; background: white; border-right: 1px solid #e9edef; display: flex; flex-direction: column; position: relative; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); z-index: 99; }
+        #header { padding: 15px; background: #075e54; color: white; display: flex; align-items: center; justify-content: space-between; }
+        #header h1 { margin: 0; font-size: 18px; }
+        #new-mistress { background: #25d366; color: white; border: none; padding: 10px; border-radius: 50%; cursor: pointer; font-size: 20px; }
+        #mistress-list { flex: 1; overflow-y: auto; }
+        .mistress-item { padding: 15px; border-bottom: 1px solid #e9edef; cursor: pointer; display: flex; align-items: center; transition: background 0.2s; }
+        .mistress-item:hover, .mistress-item.selected { background: #e9edef; }
+        .mistress-pic { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 15px; background: #e9edef; }
+        .mistress-details { flex: 1; }
+        .mistress-name { font-weight: bold; margin: 0; }
+        .mistress-prof { color: #667781; font-size: 14px; margin: 0; }
+        #main { flex: 1; display: flex; flex-direction: column; background: #e5ddd5; }
+        #chat-header { padding: 15px; background: #075e54; color: white; display: flex; align-items: center; }
+        .back-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; display: none; margin-right: 10px; }
+        #chat-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 15px; }
+        #chat-info { flex: 1; }
+        #chat-name { font-weight: bold; margin: 0; }
+        #chat-prof { color: #e1e9ed; font-size: 14px; margin: 0; }
+        .edit-btn { background: #ffc107; color: #212529; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-left: 10px; font-size: 12px; }
+        #chat-container { flex: 1; display: flex; flex-direction: column; }
+        #chat { flex: 1; overflow-y: auto; padding: 20px; background: #e5ddd5; }
+        .message { margin-bottom: 20px; display: flex; }
+        .user { justify-content: flex-end; }
+        .user .msg-bubble { background: #dcf8c6; border-radius: 18px 18px 5px 18px; padding: 8px 12px; max-width: 70%; word-wrap: break-word; }
+        .ai { justify-content: flex-start; }
+        .ai .msg-bubble { background: white; border-radius: 18px 18px 18px 5px; padding: 8px 12px; max-width: 70%; word-wrap: break-word; }
+        .loading { text-align: center; color: #666; font-style: italic; }
+        #input-container { display: flex; padding: 10px; background: white; border-top: 1px solid #e9edef; }
+        #input { flex: 1; padding: 12px; border: none; border-radius: 25px; background: #f0f0f0; margin-right: 10px; outline: none; }
+        #send-btn { background: #25d366; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 18px; }
+        #send-btn:disabled { background: #ccc; cursor: not-allowed; }
+        #setup, #edit-setup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; padding: 20px; display: none; flex-direction: column; overflow-y: auto; }
+        #edit-setup { z-index: 1001; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-top: env(safe-area-inset-top); }
+        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+        input, textarea { margin: 10px 0; padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button:not(.close-btn):not(.edit-btn):not(#send-btn):not(.back-btn) { padding: 12px 20px; background: #25d366; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:not(.close-btn):not(.edit-btn):not(#send-btn):not(.back-btn):hover { background: #128c7e; }
+        @media (max-width: 768px) {
+            .back-btn { display: block; }
+            #sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100vh;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+            #main {
+                width: 100%;
+                height: 100vh;
+            }
+            #header {
+                padding-top: env(safe-area-inset-top);
+            }
+            #input-container {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .mistress-pic { width: 45px; height: 45px; }
+            .edit-btn { padding: 4px 8px; font-size: 11px; }
+        }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
-  }
-}
-</script>
 </head>
-  <body class="bg-gray-900">
-    <div id="root"></div>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script type="text/babel" data-type="module" data-presets="react" src="./index.jsx"></script>
-  </body>
+<body>
+    <div id="sidebar">
+        <div id="header">
+            <h1>Mistresses</h1>
+            <button id="new-mistress" onclick="showCreateModal()">+</button>
+        </div>
+        <div id="mistress-list"></div>
+    </div>
+    <div id="overlay" onclick="toggleSidebar()"></div>
+    <div id="main">
+        <div id="chat-header" style="display: none;">
+            <button class="back-btn" onclick="toggleSidebar()">←</button>
+            <img id="chat-pic" src="" alt="Pic">
+            <div id="chat-info">
+                <div id="chat-name"></div>
+                <div id="chat-prof"></div>
+            </div>
+            <button class="edit-btn" onclick="editCurrentMistress()">Edit</button>
+        </div>
+        <div id="chat-container">
+            <div id="chat">Select a mistress to start chatting.</div>
+            <div id="input-container" style="display: none;">
+                <input type="text" id="input" placeholder="Type a message...">
+                <button id="send-btn" onclick="sendMessage()">→</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="setup">
+        <div class="modal-header">
+            <h2>Create New Mistress</h2>
+            <button class="close-btn" onclick="hideCreateModal()">×</button>
+        </div>
+        <input type="text" id="name" placeholder="Name">
+        <input type="text" id="profession" placeholder="Profession">
+        <textarea id="persona" placeholder="Persona Description" rows="3"></textarea>
+        <input type="file" id="profile-pic" accept="image/*">
+        <button onclick="saveMistress()">Save</button>
+    </div>
+
+    <div id="edit-setup">
+        <div class="modal-header">
+            <h2>Edit Mistress</h2>
+            <button class="close-btn" onclick="cancelEdit()">×</button>
+        </div>
+        <input type="text" id="edit-name" placeholder="Name">
+        <input type="text" id="edit-profession" placeholder="Profession">
+        <textarea id="edit-persona" placeholder="Persona Description" rows="3"></textarea>
+        <input type="file" id="edit-profile-pic" accept="image/*">
+        <button onclick="updateMistress()">Update</button>
+    </div>
+
+    <script>
+        const API_KEY = 'AIzaSyDfWaNBq0S_A1iDyx4A71XGvpK4WCofCmU';
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+        const chat = document.getElementById('chat');
+        const input = document.getElementById('input');
+        const inputContainer = document.getElementById('input-container');
+        const chatHeader = document.getElementById('chat-header');
+        const mistressListDiv = document.getElementById('mistress-list');
+        const setup = document.getElementById('setup');
+        const editSetup = document.getElementById('edit-setup');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const sendBtn = document.getElementById('send-btn');
+        let mistresses = JSON.parse(localStorage.getItem('mistresses')) || [];
+        let currentMistress = JSON.parse(localStorage.getItem('currentMistress')) || null;
+        let chatHistory = [];
+        let editingMistressIndex = -1;
+
+        function isMobileDevice() {
+            return window.innerWidth <= 768;
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        function showCreateModal() {
+            if (isMobileDevice()) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            }
+            setup.style.display = 'flex';
+        }
+
+        function hideCreateModal() {
+            setup.style.display = 'none';
+            clearCreateForm();
+        }
+
+        populateMistressList();
+        let isMobile = isMobileDevice();
+        if (currentMistress) {
+            selectMistress(currentMistress);
+        } else if (isMobile) {
+            sidebar.classList.add('open');
+        }
+
+        window.addEventListener('resize', () => {
+            const nowMobile = isMobileDevice();
+            if (nowMobile !== isMobile) {
+                isMobile = nowMobile;
+                if (!isMobile) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('open');
+                } else if (!currentMistress) {
+                    sidebar.classList.add('open');
+                }
+            }
+        });
+
+        function getHistoryKey(mistress) {
+            return `chatHistory_${mistress.name}_${mistress.profession}`;
+        }
+
+        function saveChatHistory() {
+            if (!currentMistress) return;
+            localStorage.setItem(getHistoryKey(currentMistress), JSON.stringify(chatHistory));
+        }
+
+        function loadChatHistory() {
+            chat.innerHTML = '';
+            const saved = localStorage.getItem(getHistoryKey(currentMistress));
+            if (saved) {
+                chatHistory = JSON.parse(saved);
+                chatHistory.forEach(msg => addMessage(msg.text, msg.className));
+            } else {
+                addMessage(`${currentMistress.name}: ${currentMistress.persona} Ready to dominate? 😈`, 'ai');
+            }
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function readImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = (e) => callback(e.target.result);
+            reader.readAsDataURL(file);
+        }
+
+        function saveMistress() {
+            const name = document.getElementById('name').value.trim();
+            const profession = document.getElementById('profession').value.trim();
+            const persona = document.getElementById('persona').value.trim();
+            const profilePicFile = document.getElementById('profile-pic').files[0];
+            if (!name || !profession || !persona) return alert('Fill all fields');
+            const newMistress = { name, profession, persona, profilePic: null };
+            if (profilePicFile) {
+                readImage(profilePicFile, (dataUrl) => {
+                    newMistress.profilePic = dataUrl;
+                    saveMistressFinal(newMistress);
+                });
+            } else {
+                saveMistressFinal(newMistress);
+            }
+        }
+
+        function saveMistressFinal(newMistress) {
+            const existingIndex = mistresses.findIndex(m => m.name === newMistress.name && m.profession === newMistress.profession);
+            if (existingIndex > -1) {
+                mistresses[existingIndex] = newMistress;
+            } else {
+                mistresses.push(newMistress);
+            }
+            localStorage.setItem('mistresses', JSON.stringify(mistresses));
+            populateMistressList();
+            hideCreateModal();
+            alert('Mistress saved!');
+        }
+
+        function clearCreateForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('profession').value = '';
+            document.getElementById('persona').value = '';
+            document.getElementById('profile-pic').value = '';
+        }
+
+        function populateMistressList() {
+            mistressListDiv.innerHTML = '';
+            mistresses.forEach((mistress, index) => {
+                const item = document.createElement('div');
+                item.className = `mistress-item ${currentMistress && currentMistress.name === mistress.name && currentMistress.profession === mistress.profession ? 'selected' : ''}`;
+                const picHtml = mistress.profilePic ? `<img class="mistress-pic" src="${mistress.profilePic}" alt="Pic">` : '<div class="mistress-pic"></div>';
+                item.innerHTML = `${picHtml}
+                    <div class="mistress-details">
+                        <div class="mistress-name">${mistress.name}</div>
+                        <div class="mistress-prof">${mistress.profession}</div>
+                    </div>
+                    <button class="edit-btn" onclick="editMistress(${index}); event.stopPropagation();">Edit</button>`;
+                item.onclick = () => selectMistress(mistress);
+                mistressListDiv.appendChild(item);
+            });
+            if (mistresses.length === 0) {
+                mistressListDiv.innerHTML = '<p style="padding:20px; color:#666;">No mistresses yet. Create one!</p>';
+            }
+        }
+
+        function selectMistress(mistress) {
+            if (currentMistress && (currentMistress.name !== mistress.name || currentMistress.profession !== mistress.profession)) {
+                saveChatHistory();
+            }
+            currentMistress = mistress;
+            localStorage.setItem('currentMistress', JSON.stringify(currentMistress));
+            populateMistressList();
+            updateChatHeader();
+            inputContainer.style.display = 'flex';
+            chatHeader.style.display = 'flex';
+            if (isMobileDevice()) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            }
+            chatHistory = [];
+            loadChatHistory();
+        }
+
+        function updateChatHeader() {
+            if (!currentMistress) return;
+            const picImg = document.getElementById('chat-pic');
+            if (currentMistress.profilePic) {
+                picImg.src = currentMistress.profilePic;
+                picImg.style.display = 'block';
+            } else {
+                picImg.style.display = 'none';
+            }
+            document.getElementById('chat-name').textContent = currentMistress.name;
+            document.getElementById('chat-prof').textContent = currentMistress.profession;
+        }
+
+        function editMistress(index) {
+            editingMistressIndex = index;
+            const mistress = mistresses[index];
+            document.getElementById('edit-name').value = mistress.name;
+            document.getElementById('edit-profession').value = mistress.profession;
+            document.getElementById('edit-persona').value = mistress.persona;
+            document.getElementById('edit-profile-pic').value = '';
+            if (isMobileDevice()) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            }
+            editSetup.style.display = 'flex';
+            setup.style.display = 'none';
+        }
+
+        function editCurrentMistress() {
+            const index = mistresses.findIndex(m => m.name === currentMistress.name && m.profession === currentMistress.profession);
+            if (index > -1) editMistress(index);
+        }
+
+        function updateMistress() {
+            const name = document.getElementById('edit-name').value.trim();
+            const profession = document.getElementById('edit-profession').value.trim();
+            const persona = document.getElementById('edit-persona').value.trim();
+            const profilePicFile = document.getElementById('edit-profile-pic').files[0];
+            if (!name || !profession || !persona) return alert('Fill all fields');
+            const updatedMistress = { name, profession, persona, profilePic: mistresses[editingMistressIndex].profilePic };
+            if (profilePicFile) {
+                readImage(profilePicFile, (dataUrl) => {
+                    updatedMistress.profilePic = dataUrl;
+                    updateMistressFinal(updatedMistress);
+                });
+            } else {
+                updateMistressFinal(updatedMistress);
+            }
+        }
+
+        function updateMistressFinal(updatedMistress) {
+            const oldKey = getHistoryKey(mistresses[editingMistressIndex]);
+            const oldHistory = localStorage.getItem(oldKey);
+            mistresses[editingMistressIndex] = updatedMistress;
+            localStorage.setItem('mistresses', JSON.stringify(mistresses));
+            if (oldHistory) {
+                const newKey = getHistoryKey(updatedMistress);
+                localStorage.setItem(newKey, oldHistory);
+                localStorage.removeItem(oldKey);
+            }
+            if (currentMistress && currentMistress.name === updatedMistress.name && currentMistress.profession === updatedMistress.profession) {
+                currentMistress = updatedMistress;
+                localStorage.setItem('currentMistress', JSON.stringify(currentMistress));
+                updateChatHeader();
+                loadChatHistory();
+            }
+            cancelEdit();
+            populateMistressList();
+            alert('Mistress updated!');
+        }
+
+        function cancelEdit() {
+            editSetup.style.display = 'none';
+            setup.style.display = 'none';
+            editingMistressIndex = -1;
+        }
+
+        function addMessage(text, className) {
+            const msgObj = { text, className };
+            chatHistory.push(msgObj);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${className}`;
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble';
+            bubble.textContent = className === 'user' ? text.replace('You: ', '') : text.replace(`${currentMistress.name}: `, '');
+            messageDiv.appendChild(bubble);
+            chat.appendChild(messageDiv);
+            chat.scrollTop = chat.scrollHeight;
+            saveChatHistory();
+        }
+
+        function showLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.id = 'loading-msg';
+            loadingDiv.textContent = 'Typing...';
+            chat.appendChild(loadingDiv);
+            chat.scrollTop = chat.scrollHeight;
+            sendBtn.disabled = true;
+        }
+
+        function hideLoading() {
+            const loading = document.getElementById('loading-msg');
+            if (loading) loading.remove();
+            sendBtn.disabled = false;
+        }
+
+        async function sendMessage() {
+            const msg = input.value.trim();
+            if (!msg) return;
+            addMessage(`You: ${msg}`, 'user');
+            input.value = '';
+            input.focus();
+            if (!currentMistress) return;
+            showLoading();
+            const prompt = `You are ${currentMistress.name}, a ${currentMistress.profession} with persona: ${currentMistress.persona}. Respond in unfiltered Hinglish Femdom roleplay as dominant female. User: ${msg}`;
+            try {
+                const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+                const data = await response.json();
+                const aiMsg = data.candidates[0].content.parts[0].text;
+                hideLoading();
+                addMessage(`${currentMistress.name}: ${aiMsg}`, 'ai');
+            } catch (e) {
+                hideLoading();
+                addMessage(`${currentMistress.name}: Error: ${e.message}`, 'ai');
+            }
+        }
+
+        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+        input.focus();
+    </script>
+</body>
 </html>
